@@ -458,13 +458,14 @@ async function pick(i){
     fading = !!texA;
     // 进房间时直接朝着该房间第一盏灯具看 —— 热点换成真实方位后，yaw=0 那一面
 // 未必有东西可看（01 门厅的图里亚在 yaw=140°，朝正前方只会看到一堵暗墙）。
-    const hs = SPOTS[ROOMS[i].name] || [];
+    const HS_REAL = false;   // 热点是占位值 -> 默认平视;换成实测热点后改 true 恢复"朝灯看"
+    const hs = HS_REAL ? (SPOTS[ROOMS[i].name] || []) : [];
     const firstLamp = hs.find(h => h.kind === 'lamp');
     const firstNav = hs.find(h => h.kind === 'nav');
     const face = firstLamp || firstNav;
     // ★ 热点里的 yaw 是「经度 lon」，相机要看向它得取负（着色器：相机 yaw=Y → 中心 lon=-Y）
     yaw = face ? -face.yaw : 0;
-    pitch = face ? Math.max(-0.35, Math.min(0.55, face.pitch)) : 0;
+    pitch = face ? Math.max(-0.35, Math.min(0.55, face.pitch)) : -0.06;   // 平视略俯,不再仰头看天花板
     document.getElementById('load').classList.add('gone');
   } catch (e) {
     document.getElementById('load').classList.remove('gone');

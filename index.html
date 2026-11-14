@@ -168,12 +168,13 @@
 <div id="hud">
   <button id="auto">自动旋转</button>
   <button id="reset">回正</button>
+  <button id="wide">广角 100°</button>
   <button id="spotbtn">热点 显示</button>
   <button id="editbtn">✎ 摆热点</button>
   <button id="fs">全屏</button>
   <button id="vr" style="display:none">VR</button>
   <span id="vrhint" style="display:none"></span>
-  <span id="fov">FOV 118°</span>
+  <span id="fov">FOV 100°</span>
 </div>
 <div id="load">正在载入全景...</div>
 <div id="mutebox"><span id="mutelab">关</span><button id="mute" title="背景音乐(默认关)">🔇</button></div>
@@ -275,7 +276,7 @@ const U = {
   fov: gl.getUniformLocation(prog,'uFov'),
 };
 
-let yaw = 0, pitch = 0, fov = 118*Math.PI/180;
+let yaw = 0, pitch = 0, fov = 100*Math.PI/180;
 let auto = false, cur = -1, dragging = false, lx = 0, ly = 0, vx = 0, vy = 0;
 let showSpots = false, editMode = false, pending = null, selIdx = -1;
 /* 交叉淡入:texA = 上一张(退场),texB = 当前(进场),mixT 0→1 用 0.4s */
@@ -561,6 +562,18 @@ document.getElementById('auto').onclick = e => {
   auto = !auto; e.target.classList.toggle('on', auto);
 };
 document.getElementById('reset').onclick = () => { yaw = 0; pitch = 0; vx = vy = 0; };
+
+/* 广角切换:默认 100°(正常在线全景的观感);点开 115° 让人一眼看全这间房。
+   115° 的边缘横向拉伸约 3.4 倍,所以不做默认值。 */
+const FOV_NORMAL = 100*Math.PI/180, FOV_WIDE = 115*Math.PI/180;
+let wideOn = false;
+document.getElementById('wide').onclick = e => {
+  wideOn = !wideOn;
+  fov = wideOn ? FOV_WIDE : FOV_NORMAL;
+  document.getElementById('fov').textContent = 'FOV ' + Math.round(fov*180/Math.PI) + '°';
+  e.target.classList.toggle('on', wideOn);
+  e.target.textContent = wideOn ? '广角 115°' : '广角 100°';
+};
 document.getElementById('fs').onclick = () => {
   if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
   else document.exitFullscreen?.();
